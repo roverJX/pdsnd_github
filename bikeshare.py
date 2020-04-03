@@ -4,7 +4,7 @@ import numpy as np
 import datetime as dt
 
 CITY_DATA = { 'chicago': 'chicago.csv',
-              'new york city': 'new_york_city.csv',
+             'new york city': 'new_york_city.csv',
               'washington': 'washington.csv' }
 
 def get_filters():
@@ -78,12 +78,10 @@ def load_data(city, month, day):
     df['month'] = df['Start Time'].dt.month_name()
     df['day_of_week'] = df['Start Time'].dt.day_name()
 
-
     # filter by month if applicable
     if month != 'all':
         # use the index of the months list to get the corresponding int
         months = ['january', 'february', 'march', 'april', 'may', 'june']
-
 
         # filter by month to create the new dataframe
         df = df[df['month'] == month.title()]
@@ -95,6 +93,24 @@ def load_data(city, month, day):
 
     return df
 
+def special_cases(df,output_str,station = False):
+    freq_count = df.value_counts()
+    max_freq = freq_count[freq_count==freq_count.max()]
+    if not station:
+        if len(max_freq) == 1:
+            print('The most common {}: {}\n'.format(output_str,int(max_freq.index[0])))
+            print('Count: {}\n'.format(freq_count.max()))
+        else:
+            print('The most common' + output_str + ' : %s' % ', '.join([str(element) for element in max_freq.index]))
+            print('Count: {}\n'.format(freq_count.max()))
+    else:
+        if len(max_freq) == 1:
+            print('The most commonly used {}:\n{}'.format(output_str,max_freq.index[0]))
+            print('Count: {}\n'.format(freq_count.max()))
+        else:
+            print('The most commonly used {}:\n'.format(output_str))
+            print(*max_freq.index,sep='\n')
+            print('Count: {}\n'.format(freq_count.max()))
 
 def time_stats(df):
     """Displays statistics on the most frequent times of travel."""
@@ -106,32 +122,17 @@ def time_stats(df):
     """Display the most common month"""
 
     if len(df['month'].unique()) != 1:
-        freq_count = df['month'].value_counts()
-        max_freq = freq_count[freq_count==freq_count.max()]
-        if len(max_freq) == 1:
-            print('The most common month: {}\n'.format(max_freq.index[0]))
-        else:
-            print("The most common months: %s" % ', '.join([str(element) for element in max_freq.index]))
+        special_cases(df['month'],'month',False)
 
     """display the most common day of week"""
 
     if len(df['day_of_week'].unique()) != 1:
-        freq_count = df['day_of_week'].value_counts()
-        max_freq = freq_count[freq_count==freq_count.max()]
-        if len(max_freq) == 1:
-            print('The most common day of week: {}\n'.format(max_freq.index[0]))
-        else:
-            print("The most common day of week: %s" % ', '.join([str(element) for element in max_freq.index]))
+        special_cases(df['day_of_week'],'day of week',False)
 
     """display the most common start hour"""
 
     df['hour'] = df['Start Time'].dt.hour
-    freq_count = df['hour'].value_counts()
-    max_freq = freq_count[freq_count==freq_count.max()]
-    if len(max_freq) == 1:
-        print('The most common start hour: {}\n'.format(max_freq.index[0]))
-    else:
-        print("The most common start hour: %s" % ', '.join([str(element) for element in max_freq.index]))
+    special_cases(df['hour'],'start hour',False)
 
     print("This took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -145,40 +146,16 @@ def station_stats(df):
 
     """display most commonly used start station"""
 
-    freq_count = df['Start Station'].value_counts()
-    max_freq = freq_count[freq_count==freq_count.max()]
-    if len(max_freq) == 1:
-        print('The most commonly used start station:\n{}'.format(max_freq.index[0]))
-        print('Count: {}\n'.format(freq_count.max()))
-    else:
-        print('The most commonly used start station:\n')
-        print(*max_freq.index,sep='\n')
-        print('Count: {}\n'.format(freq_count.max()))
+    special_cases(df['Start Station'],'start station',True)
 
     """display most commonly used end station"""
 
-    freq_count = df['End Station'].value_counts()
-    max_freq = freq_count[freq_count==freq_count.max()]
-    if len(max_freq) == 1:
-        print('The most commonly used end station:\n{}'.format(max_freq.index[0]))
-        print('Count: {}\n'.format(freq_count.max()))
-    else:
-        print('The most commonly used end station:\n')
-        print(*max_freq.index,sep='\n')
-        print('Count: {}\n'.format(freq_count.max()))
+    special_cases(df['End Station'],'end station',True)
 
     """display most frequent combination of start station and end station trip"""
 
     df['Start To End Station'] = df['Start Station'] + ' - ' + df['End Station']
-    freq_count = df['Start To End Station'].value_counts()
-    max_freq = freq_count[freq_count==freq_count.max()]
-    if len(max_freq) == 1:
-        print('The most frequent combination:\n{}'.format(max_freq.index[0]))
-        print('Count: {}\n'.format(freq_count.max()))
-    else:
-        print('The most frequent combination:')
-        print(*max_freq.index,sep='\n')
-        print('Count: {}\n'.format(freq_count.max()))
+    special_cases(df['Start To End Station'],'combination',True)
 
     print("This took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -218,12 +195,7 @@ def user_stats(df):
     if 'Birth Year' in df.columns:
         print('\nThe earliest year of birth: {}'.format(int(df['Birth Year'].min())))
         print('\nThe most recent year of birth: {}'.format(int(df['Birth Year'].max())))
-        freq_count = df['Birth Year'].value_counts()
-        max_freq = freq_count[freq_count==freq_count.max()]
-        if len(max_freq) == 1:
-            print('\nThe most common year of birth: {}'.format(int(max_freq.index[0])))
-        else:
-            print("\nThe most common year of birth: %s" % ', '.join([str(int(element)) for element in max_freq.index]))
+        special_cases(df['Birth Year'],'year of birth',False)
     else:
         print('\nNo birth year data to share')
 
