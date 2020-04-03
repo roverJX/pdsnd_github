@@ -94,6 +94,15 @@ def load_data(city, month, day):
     return df
 
 def special_cases(df,output_str,station = False):
+    """
+    Check and print result based on the number of max frequent in a given series
+
+    Args:
+        (list/series) - the column of the dataframe to analyze
+        (str) - output string to be inserted after 'The most common '
+        (bool) - True if the input is station_stats,
+                 False otherwise
+    """
     freq_count = df.value_counts()
     max_freq = freq_count[freq_count==freq_count.max()]
     if not station:
@@ -113,23 +122,23 @@ def special_cases(df,output_str,station = False):
             print('Count: {}\n'.format(freq_count.max()))
 
 def time_stats(df):
-    """Displays statistics on the most frequent times of travel."""
+    #Displays statistics on the most frequent times of travel
 
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
     df['Start Time'] = pd.to_datetime(df['Start Time'])
 
-    """Display the most common month"""
+    #Display the most common month
 
     if len(df['month'].unique()) != 1:
         special_cases(df['month'],'month',False)
 
-    """display the most common day of week"""
+    #display the most common day of week
 
     if len(df['day_of_week'].unique()) != 1:
         special_cases(df['day_of_week'],'day of week',False)
 
-    """display the most common start hour"""
+    #display the most common start hour
 
     df['hour'] = df['Start Time'].dt.hour
     special_cases(df['hour'],'start hour',False)
@@ -139,21 +148,17 @@ def time_stats(df):
     input("Press Enter to continue...")
 
 def station_stats(df):
-    """Displays statistics on the most popular stations and trip."""
-
+    #Displays statistics on the most popular stations and trip
     print('\nCalculating The Most Popular Stations and Trip...\n')
     start_time = time.time()
 
-    """display most commonly used start station"""
-
+    #display most commonly used start station
     special_cases(df['Start Station'],'start station',True)
 
-    """display most commonly used end station"""
-
+    #display most commonly used end station
     special_cases(df['End Station'],'end station',True)
 
-    """display most frequent combination of start station and end station trip"""
-
+    #display most frequent combination of start station and end station trip
     df['Start To End Station'] = df['Start Station'] + ' - ' + df['End Station']
     special_cases(df['Start To End Station'],'combination',True)
 
@@ -162,8 +167,7 @@ def station_stats(df):
     input("Press Enter to continue...")
 
 def trip_duration_stats(df):
-    """Displays statistics on the total and average trip duration."""
-
+    #Displays statistics on the total and average trip duration
     print('\nCalculating Trip Duration...\n')
     start_time = time.time()
 
@@ -178,12 +182,11 @@ def trip_duration_stats(df):
     input("Press Enter to continue...")
 
 def user_stats(df):
-    """Displays statistics on bikeshare users."""
-
+    #Displays statistics on bikeshare users
     print('\nCalculating User Stats...\n')
     start_time = time.time()
 
-    # Display counts of user types
+    #Display counts of user types
     print('Counts of user types:\n{}'.format(df['User Type'].value_counts().to_string()))
 
     # Display counts of gender
@@ -204,7 +207,9 @@ def user_stats(df):
     input("Press Enter to continue...")
 
 def check_raw_data(df):
-    """Check if user wants to see 5 rows of data"""
+    """
+    Check if user wants to see 5 rows of data
+    """
     step = 0
     check = input('Would you like to see 5 lines of raw data?(Y/N)')
     while check.upper() not in ('Y','N'):
